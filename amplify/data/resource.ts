@@ -7,13 +7,15 @@ The authorization rule below specifies that any user authenticated via an API
 key can "create", "read", "update", and "delete" any "NameReconciliation" records.
 =========================================================================*/
 const schema = a.schema({
+  EvaluationResult: a.enum(['yes', 'no', 'unsure']),
   NameReconciliation: a
     .model({
       label: a.string().required(),
       idx: a.integer().required(),
       reconciled_labels: a.json(),
       candidates: a.json(),
-      evaluation_result: a.boolean(),
+      reconciled_labels_evaluations: a.json(), // Field to store individual evaluation results as {idx: 'yes'|'no'|'unsure'}
+      evaluator_id: a.string(), // Email of the user who evaluated this record
     })
     .authorization((allow) => [allow.publicApiKey()]),
 });

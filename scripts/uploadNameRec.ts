@@ -274,7 +274,8 @@ async function main() {
         idx: item.idx,
         reconciled_labels: JSON.stringify(item.reconciled_labels),
         candidates: JSON.stringify(item.candidates),
-        evaluation_result: null // Default to not evaluated (null means no evaluation yet)
+        reconciled_labels_evaluations: JSON.stringify({}), // Initialize as empty object for individual evaluations
+        evaluator_id: undefined // Initialize as undefined - will be set when user evaluates the record
       };
 
       const { data, errors } = await client.models.NameReconciliation.create(createInput);
