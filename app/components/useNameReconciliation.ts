@@ -22,13 +22,12 @@ export function useNameReconciliation() {
     listNameReconciliations();
   }, []);
 
-  // Initialize to the first useful record when data loads
+  // Initialize to a random unevaluated useful record when data loads
   useEffect(() => {
     if (nameReconciliations.length > 0 && currentRecordIndex === 0) {
-      // Find the first useful record
-      const firstUsefulIndex = nameReconciliations.findIndex(isRecordUseful);
-      if (firstUsefulIndex !== -1 && firstUsefulIndex !== currentRecordIndex) {
-        setCurrentRecordIndex(firstUsefulIndex);
+      const randomIndex = findRandomUnevaluatedRecord();
+      if (randomIndex !== currentRecordIndex) {
+        setCurrentRecordIndex(randomIndex);
       }
     }
   }, [nameReconciliations, currentRecordIndex]);
