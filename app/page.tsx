@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { generateClient } from "aws-amplify/data";
 import type { Schema } from "@/amplify/data/resource";
+import { useAuthenticator } from "@aws-amplify/ui-react";
 import "./../app/app.css";
 import { Amplify } from "aws-amplify";
 import outputs from "@/amplify_outputs.json";
@@ -13,6 +14,8 @@ Amplify.configure(outputs);
 const client = generateClient<Schema>();
 
 export default function App() {
+  const { signOut } = useAuthenticator();
+
   const [nameReconciliations, setNameReconciliations] = useState<
     Array<Schema["NameReconciliation"]["type"]>
   >([]);
@@ -147,7 +150,28 @@ export default function App() {
 
   return (
     <main>
-      <h1>Name Reconciliation Service Evaluation</h1>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "20px",
+          marginBottom: "20px",
+          paddingTop: "20px",
+          flexWrap: "wrap",
+        }}
+      >
+        <img
+          src="/Wellcome_Trust_logo.svg"
+          alt="Wellcome Trust"
+          style={{
+            height: "60px",
+            maxWidth: "200px",
+            objectFit: "contain",
+          }}
+        />
+        <h1 style={{ margin: 0 }}>Name Reconciliation Service Evaluation</h1>
+      </div>
 
       <div style={{ marginTop: "20px" }}>
         {nameReconciliations.length === 0 ? (
@@ -605,6 +629,7 @@ export default function App() {
         🥳 Help us evaluate the accuracy of our Name Reconciliation Service
         (Wellcome Collection).
       </div>
+      <button onClick={signOut}>Sign out</button>
     </main>
   );
 }
