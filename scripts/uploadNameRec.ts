@@ -24,6 +24,7 @@ interface Options {
   apiKey?: string; 
   verbose?: boolean;
   limit?: number;
+  clearData?: boolean;
 }
 
 interface NameRecData {
@@ -51,6 +52,8 @@ function parseArgs(argv: string[]): { options: Options } {
       options.verbose = true;
     } else if (a === '--dryRun') {
       options.dryRun = true;
+    } else if (a === '--clearData') {
+      options.clearData = true;
     } else if (a === '--help' || a === '-h') {
       printHelpAndExit();
     } else if (a.startsWith('-')) {
@@ -69,12 +72,14 @@ function printHelpAndExit(code = 0) {
 `  --outputs|-o <path>    Path to amplify_outputs.json for target deployment (defaults to local)\n` +
 `  --apiKey <key>         Override API key (use with --outputs or env vars)\n` +
 `  --dryRun               Show what would be created without writing\n` +
+`  --clearData            Delete all existing NameReconciliation records before upload\n` +
 `  --verbose|-v           Verbose logging (show chosen config)\n` +
 `  --help|-h              Show help\n\n` +
 `Examples:\n` +
 `  npx tsx scripts/uploadNameRec.ts --file data/name_rec/name_rec_637489.json\n` +
 `  npx tsx scripts/uploadNameRec.ts --directory data/name_rec --limit 10\n` +
-`  npx tsx scripts/uploadNameRec.ts --directory data/name_rec --dryRun\n`);
+`  npx tsx scripts/uploadNameRec.ts --directory data/name_rec --dryRun\n` +
+`  npx tsx scripts/uploadNameRec.ts --directory data/name_rec --clearData\n`);
   process.exit(code);
 }
 
@@ -207,9 +212,47 @@ async function main() {
 
   const client = generateClient<Schema>();
 
+  // Clear existing data if requested
+  if (options.clearData && !options.dryRun) {
+    console.log('Clearing existing NameReconciliation records...');
+    try {
+      // Get all existing records
+      const existingRecords = await client.models.NameReconciliation.list({
+        limit: 10000 // Adjust if you expect more records
+      });
+      
+      if (existingRecords.data && existingRecords.data.length > 0) {
+        console.log(`Found ${existingRecords.data.length} existing records to delete`);
+        
+        // Delete each record
+        let deleteCount = 0;
+        for (const record of existingRecords.data) {
+          try {
+            await client.models.NameReconciliation.delete({ id: record.id });
+            deleteCount++;
+            if (options.verbose && deleteCount % 10 === 0) {
+              console.log(`Deleted ${deleteCount}/${existingRecords.data.length} records...`);
+            }
+          } catch (err: any) {
+            console.warn(`Failed to delete record ${record.id}: ${err.message}`);
+          }
+        }
+        console.log(`Successfully deleted ${deleteCount} existing records`);
+      } else {
+        console.log('No existing records found to delete');
+      }
+    } catch (err: any) {
+      console.error('Error clearing existing data:', err.message);
+      process.exit(1);
+    }
+  }
+
   console.log(`Preparing to create ${items.length} NameReconciliation record(s)`);
   
   if (options.dryRun) {
+    if (options.clearData) {
+      console.log('Note: --clearData would delete all existing records before upload (not performed in dry run)');
+    }
     console.log('Sample data:');
     console.table(items.slice(0, 3).map(item => ({
       label: item.label,

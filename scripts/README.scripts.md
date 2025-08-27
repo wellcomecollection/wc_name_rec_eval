@@ -26,6 +26,12 @@ Dry run (no writes):
 npm run seed:name-rec -- --directory data/name_rec --limit 5 --dryRun
 ```
 
+Clear existing data before upload:
+
+```bash
+npm run seed:name-rec -- --directory data/name_rec --clearData
+```
+
 ## Seed Against a Deployed Backend
 
 ### Using amplify_outputs file (deployment bundle)
@@ -34,6 +40,12 @@ If you have a deployment outputs file:
 
 ```bash
 npm run seed:name-rec -- --outputs path/to/amplify_outputs.deployment.main.json --directory data/name_rec --limit 10
+```
+
+Clear existing data before upload to deployment:
+
+```bash
+npm run seed:name-rec -- --outputs path/to/amplify_outputs.deployment.main.json --directory data/name_rec --clearData
 ```
 
 To get the deployment config file:
