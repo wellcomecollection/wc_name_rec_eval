@@ -28,20 +28,21 @@ npm run seed:name-rec -- --directory data/name_rec --limit 5 --dryRun
 
 ## Seed Against a Deployed Backend
 
-### Using aws-exports.js (deployment bundle)
+### Using amplify_outputs file (deployment bundle)
 
-If your deployment includes `aws-exports.js` (or `aws-export.js`) at the repo root:
+If you have a deployment outputs file:
 
 ```bash
-npm run seed:name-rec -- --directory data/name_rec --limit 10
+npm run seed:name-rec -- --outputs path/to/amplify_outputs.deployment.main.json --directory data/name_rec --limit 10
 ```
 
 To get the deployment config file:
 
-1. Go to **AWS Console** → **AWS AppSync** → **APIs**
-2. Select your API (e.g., "amplifyData")
-3. Click **"Download config"** to get the deployment configuration file
-4. Save it as `aws-exports.js` at your project root
+1. Go to **AWS Console** → **AWS Amplify** → **All apps** → **wc_name_rec_eval**
+2. Under **Branches**, click on the branch **main**
+3. Click on the tab: **Deployed backend resources**
+4. Click **"Download amplify_outputs.json"** to get the deployment configuration file
+5. Save it as `amplify_outputs.deployment.main.json` at your project root
 
 ### List Available AppSync APIs (Helper)
 

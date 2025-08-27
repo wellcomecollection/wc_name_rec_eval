@@ -22,7 +22,6 @@ interface Options {
   dryRun?: boolean; 
   outputsPath?: string; 
   apiKey?: string; 
-  awsExports?: boolean; 
   verbose?: boolean;
   limit?: number;
 }
@@ -48,8 +47,6 @@ function parseArgs(argv: string[]): { options: Options } {
       options.apiKey = argv[++i];
     } else if (a === '--limit' || a === '-l') {
       options.limit = parseInt(argv[++i]);
-    } else if (a === '--awsExports') {
-      options.awsExports = true;
     } else if (a === '--verbose' || a === '-v') {
       options.verbose = true;
     } else if (a === '--dryRun') {
@@ -72,7 +69,6 @@ function printHelpAndExit(code = 0) {
 `  --outputs|-o <path>    Path to amplify_outputs.json for target deployment (defaults to local)\n` +
 `  --apiKey <key>         Override API key (use with --outputs or env vars)\n` +
 `  --dryRun               Show what would be created without writing\n` +
-`  --awsExports           Use aws-exports.js at repo root for deployed backend\n` +
 `  --verbose|-v           Verbose logging (show chosen config)\n` +
 `  --help|-h              Show help\n\n` +
 `Examples:\n` +
@@ -179,41 +175,6 @@ async function main() {
       }
     };
     configSource = 'envVars';
-  } else if (options.awsExports) {
-    // Load classic deployment-style aws-exports.js
-    const candidateNames = ['aws-exports.js', 'aws-export.js'];
-    let loaded: any = undefined;
-    for (const name of candidateNames) {
-      const p = path.resolve(__dirname, `../${name}`);
-      if (fs.existsSync(p)) {
-        try {
-          const mod = await import(p);
-          loaded = mod.default || mod;
-          configSource = `aws-exports:${p}`;
-          break;
-        } catch (e) {
-          throw new Error(`Failed to load ${name}: ${(e as any)?.message}`);
-        }
-      }
-    }
-    if (!loaded) {
-      throw new Error('Flag --awsExports provided but no aws-exports.js (or aws-export.js) found at project root.');
-    }
-    
-    const endpoint = loaded?.API?.GraphQL?.endpoint;
-    if (!endpoint) throw new Error('aws-exports.js missing API.GraphQL.endpoint');
-    const region = loaded?.API?.GraphQL?.region || process.env.AMPLIFY_REGION || 'us-east-1';
-    const apiKey = loaded?.API?.GraphQL?.apiKey || process.env.AMPLIFY_API_KEY;
-    resolvedConfig = {
-      data: {
-        url: endpoint,
-        aws_region: region,
-        api_key: apiKey,
-        default_authorization_type: apiKey ? 'API_KEY' : 'AWS_IAM',
-        authorization_types: apiKey ? ['API_KEY'] : ['AWS_IAM']
-      },
-      version: "1.3"
-    };
   } else {
     resolvedConfig = outputs;
     configSource = 'amplify_outputs.json (local sandbox)';
