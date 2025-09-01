@@ -3,14 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "dev:sandbox": "npx ampx sandbox --profile platform-admin-lon",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-  "lint": "next lint",
-  "seed:todos": "tsx scripts/uploadTodos.ts",
-  "seed:name-rec": "tsx scripts/uploadNameRec.ts",
-  "fetch:outputs": "tsx scripts/fetchDeploymentOutputs.ts",
-  "list:appsync": "aws appsync list-graphql-apis --region $AWS_REGION --profile $AWS_PROFILE --query 'graphqlApis[].{name:name,id:apiId,url:uris.GRAPHQL}'"
+    "lint": "next lint",
+    "seed:name-rec": "tsx scripts/uploadNameRec.ts",
+    "seed:name-rec:sandbox": "tsx scripts/uploadNameRec.ts --directory data/name_rec --clearData",
+    "seed:name-rec:deployment": "tsx scripts/uploadNameRec.ts --outputs path/to/amplify_outputs.deployment.main.json --directory data/name_rec --clearData",
+    "list:appsync": "aws appsync list-graphql-apis --region $AWS_REGION --profile $AWS_PROFILE --query 'graphqlApis[].{name:name,id:apiId,url:uris.GRAPHQL}'"
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^6.5.5",

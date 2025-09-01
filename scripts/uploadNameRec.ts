@@ -216,28 +216,46 @@ async function main() {
   if (options.clearData && !options.dryRun) {
     console.log('Clearing existing NameReconciliation records...');
     try {
-      // Get all existing records
-      const existingRecords = await client.models.NameReconciliation.list({
-        limit: 10000 // Adjust if you expect more records
-      });
+      let totalDeleteCount = 0;
+      let nextToken: string | undefined = undefined;
       
-      if (existingRecords.data && existingRecords.data.length > 0) {
-        console.log(`Found ${existingRecords.data.length} existing records to delete`);
+      do {
+        // Get existing records with pagination
+        const existingRecords = await client.models.NameReconciliation.list({
+          limit: 1000, // Use smaller batches for better performance and reliability
+          nextToken: nextToken
+        });
         
-        // Delete each record
-        let deleteCount = 0;
-        for (const record of existingRecords.data) {
-          try {
-            await client.models.NameReconciliation.delete({ id: record.id });
-            deleteCount++;
-            if (options.verbose && deleteCount % 10 === 0) {
-              console.log(`Deleted ${deleteCount}/${existingRecords.data.length} records...`);
+        if (existingRecords.data && existingRecords.data.length > 0) {
+          if (totalDeleteCount === 0) {
+            console.log('Found existing records to delete, processing in batches...');
+          }
+          
+          // Delete each record in this batch
+          let batchDeleteCount = 0;
+          for (const record of existingRecords.data) {
+            try {
+              await client.models.NameReconciliation.delete({ id: record.id });
+              batchDeleteCount++;
+              totalDeleteCount++;
+              if (options.verbose && totalDeleteCount % 10 === 0) {
+                console.log(`Deleted ${totalDeleteCount} records...`);
+              }
+            } catch (err: any) {
+              console.warn(`Failed to delete record ${record.id}: ${err.message}`);
             }
-          } catch (err: any) {
-            console.warn(`Failed to delete record ${record.id}: ${err.message}`);
+          }
+          
+          if (options.verbose || existingRecords.data.length >= 100) {
+            console.log(`Deleted batch of ${batchDeleteCount} records (total: ${totalDeleteCount})`);
           }
         }
-        console.log(`Successfully deleted ${deleteCount} existing records`);
+        
+        nextToken = existingRecords.nextToken ?? undefined;
+      } while (nextToken);
+      
+      if (totalDeleteCount > 0) {
+        console.log(`Successfully deleted ${totalDeleteCount} existing records`);
       } else {
         console.log('No existing records found to delete');
       }
