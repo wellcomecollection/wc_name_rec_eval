@@ -64,6 +64,10 @@ export default function ReconciledLabelsEvaluator({
         <div style={{ display: "grid", gap: "15px" }}>
           {filteredLabels.map((reconLabel: any, index: number) => {
             const evaluation = labelEvaluations[reconLabel.idx];
+            const conceptId = String(reconLabel.idx || "").split("_")[0];
+            const wellcomeUrl = conceptId
+              ? `https://wellcomecollection.org/concepts/${conceptId}`
+              : undefined;
             return (
               <div
                 key={index}
@@ -98,7 +102,17 @@ export default function ReconciledLabelsEvaluator({
                       fontSize: "12px",
                     }}
                   >
-                    idx: {reconLabel.idx}
+                    idx: {wellcomeUrl ? (
+                      <a
+                        href={wellcomeUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {reconLabel.idx}
+                      </a>
+                    ) : (
+                      reconLabel.idx
+                    )}
                   </span>
                 </div>
 

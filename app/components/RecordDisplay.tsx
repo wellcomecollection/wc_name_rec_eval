@@ -5,6 +5,10 @@ interface RecordDisplayProps {
 }
 
 export default function RecordDisplay({ record }: RecordDisplayProps) {
+  const conceptId = String(record.idx || "").split("_")[0];
+  const wellcomeUrl = conceptId
+    ? `https://wellcomecollection.org/concepts/${conceptId}`
+    : undefined;
   return (
     <div style={{ marginBottom: "20px" }}>
       <h4 style={{ margin: "0 0 10px 0", color: "#333" }}>Current Record:</h4>
@@ -21,7 +25,13 @@ export default function RecordDisplay({ record }: RecordDisplayProps) {
           <strong style={{ color: "#2c5282" }}>{record.label}</strong>
           <span style={{ color: "#666", fontSize: "12px" }}>
             {" "}
-            (idx: {record.idx})
+            (idx: {wellcomeUrl ? (
+              <a href={wellcomeUrl} target="_blank" rel="noopener noreferrer">
+                {record.idx}
+              </a>
+            ) : (
+              record.idx
+            )})
           </span>
         </div>
       </div>

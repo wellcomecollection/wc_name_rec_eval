@@ -11,7 +11,7 @@ const schema = a.schema({
   NameReconciliation: a
     .model({
       label: a.string().required(),
-      idx: a.integer().required(),
+      idx: a.string().required(),
       reconciled_labels: a.json(),
       candidates: a.json(),
       reconciled_labels_evaluations: a.json(), // Field to store individual evaluation results as {idx: 'yes'|'no'|'unsure'}

@@ -135,7 +135,7 @@ function validateNameRecData(data: any, filePath: string): NameRecData {
     throw new Error(`Invalid data structure in ${filePath}`);
   }
   
-  if (typeof data.label !== 'string' || typeof data.idx !== 'number') {
+  if (typeof data.label !== 'string' || typeof data.idx !== 'string') {
     throw new Error(`Missing required fields (label, idx) in ${filePath}`);
   }
 
