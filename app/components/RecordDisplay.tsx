@@ -22,17 +22,19 @@ export default function RecordDisplay({ record }: RecordDisplayProps) {
         }}
       >
         <div style={{ fontSize: "14px" }}>
-          <strong style={{ color: "#2c5282" }}>{record.label}</strong>
-          <span style={{ color: "#666", fontSize: "12px" }}>
-            {" "}
-            (idx: {wellcomeUrl ? (
+          <div>
+            <strong style={{ color: "#2c5282" }}>{record.label}</strong>
+          </div>
+          <div style={{ color: "#666", fontSize: "12px", marginTop: "8px" }}>
+            idx:{" "}
+            {wellcomeUrl ? (
               <a href={wellcomeUrl} target="_blank" rel="noopener noreferrer">
                 {record.idx}
               </a>
             ) : (
               record.idx
-            )})
-          </span>
+            )}
+          </div>
         </div>
       </div>
     </div>

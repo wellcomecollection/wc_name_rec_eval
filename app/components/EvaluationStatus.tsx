@@ -18,8 +18,6 @@ export default function EvaluationStatus({
   return (
     <div
       style={{
-        borderTop: "2px solid #eee",
-        paddingTop: "20px",
         textAlign: "center",
       }}
     >
