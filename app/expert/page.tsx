@@ -31,6 +31,7 @@ export default function ExpertApp() {
     areAllLabelsEvaluated,
     handleNextRecord,
     handleSubmitEvaluation,
+    clearEvaluation,
     idxFilter,
     setIdxFilter,
     statusFilter,
@@ -277,6 +278,25 @@ export default function ExpertApp() {
                       )}
                     </div>
                   </div>
+                </div>
+
+                {/* Clear Evaluation Button (below Evaluator ID) */}
+                <div style={{ margin: "0 0 20px 0", textAlign: "left" }}>
+                  <button
+                    onClick={() => currentRecord && clearEvaluation(currentRecord.id)}
+                    style={{
+                      padding: "8px 12px",
+                      backgroundColor: "#fff",
+                      color: "#dc3545",
+                      border: "1px solid #dc3545",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                      fontWeight: 600,
+                      fontSize: "13px",
+                    }}
+                  >
+                    Clear evaluation
+                  </button>
                 </div>
 
                 <CandidatesViewer record={currentRecord} />

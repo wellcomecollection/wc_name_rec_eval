@@ -295,6 +295,32 @@ export function useNameReconciliation(autoSelectRecord: boolean = true) {
     }
   }
 
+  // Clear evaluator assignment and all reconciled label evaluations for a record
+  async function clearEvaluation(recordId: string) {
+    try {
+      await client.models.NameReconciliation.update({
+        id: recordId,
+        evaluator_id: "",
+        reconciled_labels_evaluations: JSON.stringify({}),
+      });
+
+      // Update local cache
+      setNameReconciliations((prev) =>
+        prev.map((r) =>
+          r.id === recordId
+            ? {
+                ...r,
+                evaluator_id: "",
+                reconciled_labels_evaluations: JSON.stringify({}),
+              }
+            : r
+        )
+      );
+    } catch (error) {
+      console.error("Error clearing evaluation:", error);
+    }
+  }
+
   const currentRecord = filteredNameReconciliations[currentRecordIndex];
   const usefulRecords = filteredNameReconciliations.filter(isRecordUseful);
   const currentRecordUsefulIndex = usefulRecords.findIndex(
@@ -323,6 +349,7 @@ export function useNameReconciliation(autoSelectRecord: boolean = true) {
     areAllLabelsEvaluated,
     handleNextRecord,
     handleSubmitEvaluation,
+    clearEvaluation,
     isRecordUseful,
     idxFilter,
     setIdxFilter,
