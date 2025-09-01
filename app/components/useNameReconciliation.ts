@@ -5,12 +5,13 @@ import { useAuthenticator } from "@aws-amplify/ui-react";
 
 const client = generateClient<Schema>();
 
-export function useNameReconciliation() {
+export function useNameReconciliation(autoSelectRecord: boolean = true) {
   const { user } = useAuthenticator();
   const [nameReconciliations, setNameReconciliations] = useState<
     Array<Schema["NameReconciliation"]["type"]>
   >([]);
   const [currentRecordIndex, setCurrentRecordIndex] = useState(0);
+  const [idxFilter, setIdxFilter] = useState("");
 
   function listNameReconciliations() {
     client.models.NameReconciliation.observeQuery().subscribe({
@@ -22,15 +23,44 @@ export function useNameReconciliation() {
     listNameReconciliations();
   }, []);
 
+  // Filter records by idx substring (string match)
+  const filteredNameReconciliations = nameReconciliations.filter((r) =>
+    idxFilter.trim() === ""
+      ? true
+      : String(r.idx ?? "").includes(idxFilter.trim())
+  );
+
   // Initialize to a random unevaluated useful record when data loads
   useEffect(() => {
-    if (nameReconciliations.length > 0 && currentRecordIndex === 0) {
+    if (
+      autoSelectRecord &&
+      filteredNameReconciliations.length > 0 &&
+      currentRecordIndex === 0
+    ) {
       const randomIndex = findRandomUnevaluatedRecord();
       if (randomIndex !== currentRecordIndex) {
         setCurrentRecordIndex(randomIndex);
       }
     }
-  }, [nameReconciliations, currentRecordIndex]);
+  }, [nameReconciliations, idxFilter, currentRecordIndex, autoSelectRecord]);
+
+  // Ensure current index remains valid when the filter changes
+  useEffect(() => {
+    if (currentRecordIndex >= filteredNameReconciliations.length) {
+      setCurrentRecordIndex(0);
+    }
+  }, [idxFilter, nameReconciliations]);
+
+  // When the filter text changes, jump to the first useful match (if any)
+  useEffect(() => {
+    if (filteredNameReconciliations.length > 0) {
+      const firstUseful = findFirstUsefulIndex();
+      setCurrentRecordIndex(firstUseful);
+    } else {
+      setCurrentRecordIndex(0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idxFilter]);
 
   // Helper function to check if a record is useful for evaluation
   const isRecordUseful = (record: Schema["NameReconciliation"]["type"]) => {
@@ -48,36 +78,54 @@ export function useNameReconciliation() {
     return filteredLabels.length > 0;
   };
 
-  // Find the previous useful record
+  // Find the previous useful record within the filtered set
   function findPreviousUsefulIndex(): number {
     for (let i = currentRecordIndex - 1; i >= 0; i--) {
-      if (isRecordUseful(nameReconciliations[i])) {
+      if (isRecordUseful(filteredNameReconciliations[i])) {
         return i;
       }
     }
     // If no useful records before current, wrap to end
-    for (let i = nameReconciliations.length - 1; i > currentRecordIndex; i--) {
-      if (isRecordUseful(nameReconciliations[i])) {
+    for (
+      let i = filteredNameReconciliations.length - 1;
+      i > currentRecordIndex;
+      i--
+    ) {
+      if (isRecordUseful(filteredNameReconciliations[i])) {
         return i;
       }
     }
     return currentRecordIndex; // Stay on current if no other useful records
   }
 
-  // Find the next useful record
+  // Find the next useful record within the filtered set
   function findNextUsefulIndex(): number {
-    for (let i = currentRecordIndex + 1; i < nameReconciliations.length; i++) {
-      if (isRecordUseful(nameReconciliations[i])) {
+    for (
+      let i = currentRecordIndex + 1;
+      i < filteredNameReconciliations.length;
+      i++
+    ) {
+      if (isRecordUseful(filteredNameReconciliations[i])) {
         return i;
       }
     }
     // If no useful records after current, wrap to beginning
     for (let i = 0; i < currentRecordIndex; i++) {
-      if (isRecordUseful(nameReconciliations[i])) {
+      if (isRecordUseful(filteredNameReconciliations[i])) {
         return i;
       }
     }
     return currentRecordIndex; // Stay on current if no other useful records
+  }
+
+  // Find the first useful record within the filtered set
+  function findFirstUsefulIndex(): number {
+    for (let i = 0; i < filteredNameReconciliations.length; i++) {
+      if (isRecordUseful(filteredNameReconciliations[i])) {
+        return i;
+      }
+    }
+    return 0; // Fallback to first record if no useful records found
   }
 
   // New function to handle individual reconciled label evaluation
@@ -156,8 +204,8 @@ export function useNameReconciliation() {
 
   // Function to find a random useful record that hasn't been evaluated yet
   function findRandomUnevaluatedRecord(): number {
-    // Filter for useful records that don't have an evaluator_id
-    const unevaluatedRecords = nameReconciliations
+    // Filter for useful records that don't have an evaluator_id, within the filtered set
+    const unevaluatedRecords = filteredNameReconciliations
       .map((record, index) => ({ record, index }))
       .filter(
         ({ record }) =>
@@ -167,7 +215,7 @@ export function useNameReconciliation() {
 
     if (unevaluatedRecords.length === 0) {
       // If no unevaluated records, fall back to any useful record
-      const usefulRecords = nameReconciliations
+      const usefulRecords = filteredNameReconciliations
         .map((record, index) => ({ record, index }))
         .filter(({ record }) => isRecordUseful(record));
 
@@ -184,20 +232,20 @@ export function useNameReconciliation() {
 
   // Function to handle Next Record button press with evaluator ID recording
   async function handleNextRecord() {
-    if (!currentRecord || !user?.signInDetails?.loginId) return;
+    if (!currentRecord || !user?.userId) return;
 
     try {
       // Update the record with evaluator ID
       await client.models.NameReconciliation.update({
         id: currentRecord.id,
-        evaluator_id: user.signInDetails.loginId,
+        evaluator_id: user.userId,
       });
 
       // Update local state
       setNameReconciliations((prev) =>
         prev.map((r) =>
           r.id === currentRecord.id
-            ? { ...r, evaluator_id: user.signInDetails?.loginId || "" }
+            ? { ...r, evaluator_id: user.userId || "" }
             : r
         )
       );
@@ -211,8 +259,34 @@ export function useNameReconciliation() {
     }
   }
 
-  const currentRecord = nameReconciliations[currentRecordIndex];
-  const usefulRecords = nameReconciliations.filter(isRecordUseful);
+  // Function to handle Submit Evaluation button press (for expert mode)
+  async function handleSubmitEvaluation() {
+    if (!currentRecord || !user?.userId) return;
+
+    try {
+      // Update the record with evaluator ID to mark it as submitted
+      await client.models.NameReconciliation.update({
+        id: currentRecord.id,
+        evaluator_id: user.userId,
+      });
+
+      // Update local state
+      setNameReconciliations((prev) =>
+        prev.map((r) =>
+          r.id === currentRecord.id
+            ? { ...r, evaluator_id: user.userId || "" }
+            : r
+        )
+      );
+
+      console.log("Evaluation submitted successfully");
+    } catch (error) {
+      console.error("Error submitting evaluation:", error);
+    }
+  }
+
+  const currentRecord = filteredNameReconciliations[currentRecordIndex];
+  const usefulRecords = filteredNameReconciliations.filter(isRecordUseful);
   const currentRecordUsefulIndex = usefulRecords.findIndex(
     (rec) => rec.id === currentRecord?.id
   );
@@ -225,6 +299,7 @@ export function useNameReconciliation() {
 
   return {
     nameReconciliations,
+    filteredNameReconciliations,
     currentRecord,
     currentRecordIndex,
     usefulRecords,
@@ -233,9 +308,13 @@ export function useNameReconciliation() {
     setCurrentRecordIndex,
     findPreviousUsefulIndex,
     findNextUsefulIndex,
+    findFirstUsefulIndex,
     setReconciledLabelEvaluation,
     areAllLabelsEvaluated,
     handleNextRecord,
+    handleSubmitEvaluation,
     isRecordUseful,
+    idxFilter,
+    setIdxFilter,
   };
 }
