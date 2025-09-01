@@ -12,6 +12,9 @@ export function useNameReconciliation(autoSelectRecord: boolean = true) {
   >([]);
   const [currentRecordIndex, setCurrentRecordIndex] = useState(0);
   const [idxFilter, setIdxFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "evaluated" | "unevaluated"
+  >("all");
 
   function listNameReconciliations() {
     client.models.NameReconciliation.observeQuery().subscribe({
@@ -23,12 +26,19 @@ export function useNameReconciliation(autoSelectRecord: boolean = true) {
     listNameReconciliations();
   }, []);
 
-  // Filter records by idx substring (string match)
-  const filteredNameReconciliations = nameReconciliations.filter((r) =>
-    idxFilter.trim() === ""
-      ? true
-      : String(r.idx ?? "").includes(idxFilter.trim())
-  );
+  // Filter records by idx substring and evaluation status
+  const filteredNameReconciliations = nameReconciliations
+    .filter((r) =>
+      idxFilter.trim() === ""
+        ? true
+        : String(r.idx ?? "").includes(idxFilter.trim())
+    )
+    .filter((r) => {
+      const isEvaluated = !!(r.evaluator_id && r.evaluator_id.trim() !== "");
+      if (statusFilter === "evaluated") return isEvaluated;
+      if (statusFilter === "unevaluated") return !isEvaluated;
+      return true; // all
+    });
 
   // Initialize to a random unevaluated useful record when data loads
   useEffect(() => {
@@ -42,14 +52,14 @@ export function useNameReconciliation(autoSelectRecord: boolean = true) {
         setCurrentRecordIndex(randomIndex);
       }
     }
-  }, [nameReconciliations, idxFilter, currentRecordIndex, autoSelectRecord]);
+  }, [nameReconciliations, idxFilter, statusFilter, currentRecordIndex, autoSelectRecord]);
 
   // Ensure current index remains valid when the filter changes
   useEffect(() => {
     if (currentRecordIndex >= filteredNameReconciliations.length) {
       setCurrentRecordIndex(0);
     }
-  }, [idxFilter, nameReconciliations]);
+  }, [idxFilter, statusFilter, nameReconciliations]);
 
   // When the filter text changes, jump to the first useful match (if any)
   useEffect(() => {
@@ -60,7 +70,7 @@ export function useNameReconciliation(autoSelectRecord: boolean = true) {
       setCurrentRecordIndex(0);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idxFilter]);
+  }, [idxFilter, statusFilter]);
 
   // Helper function to check if a record is useful for evaluation
   const isRecordUseful = (record: Schema["NameReconciliation"]["type"]) => {
@@ -316,5 +326,7 @@ export function useNameReconciliation(autoSelectRecord: boolean = true) {
     isRecordUseful,
     idxFilter,
     setIdxFilter,
+    statusFilter,
+    setStatusFilter,
   };
 }

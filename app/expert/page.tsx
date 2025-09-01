@@ -33,6 +33,8 @@ export default function ExpertApp() {
     handleSubmitEvaluation,
     idxFilter,
     setIdxFilter,
+    statusFilter,
+    setStatusFilter,
   } = useNameReconciliation(false);
 
   return (
@@ -44,20 +46,103 @@ export default function ExpertApp() {
         {(() => null)()}
         {/* idx filter input */}
         <div style={{ maxWidth: "800px", margin: "0 auto 16px auto" }}>
-          <input
-            type="text"
-            value={idxFilter}
-            onChange={(e) => setIdxFilter(e.target.value)}
-            placeholder="Filter by idx (substring match)"
-            style={{
-              width: "100%",
-              padding: "10px 12px",
-              border: "1px solid #ccc",
-              borderRadius: "6px",
-              fontSize: "14px",
-            }}
-          />
-          {idxFilter && (
+          <div style={{ position: "relative" }}>
+            <input
+              type="text"
+              value={idxFilter}
+              onChange={(e) => setIdxFilter(e.target.value)}
+              placeholder="Filter by idx (substring match)"
+              style={{
+                width: "100%",
+                padding: "10px 36px 10px 12px",
+                border: "1px solid #ccc",
+                borderRadius: "6px",
+                fontSize: "14px",
+              }}
+            />
+            {idxFilter && (
+              <button
+                aria-label="Clear filter"
+                onClick={() => setIdxFilter("")}
+                style={{
+                  position: "absolute",
+                  right: "8px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                  fontSize: "16px",
+                  color: "#666",
+                  lineHeight: 1,
+                  padding: "2px 6px",
+                }}
+              >
+                ×
+              </button>
+            )}
+          </div>
+
+          {/* Status filter chips */}
+          <div style={{ display: "flex", gap: "8px", marginTop: "10px", flexWrap: "wrap" }}>
+            {(() => {
+              const total = nameReconciliations.length;
+              const evaluated = nameReconciliations.filter(
+                (r) => r.evaluator_id && r.evaluator_id.trim() !== ""
+              ).length;
+              const unevaluated = total - evaluated;
+              const chipBase = {
+                padding: "6px 10px",
+                borderRadius: "9999px",
+                border: "1px solid #ccc",
+                background: "#f5f5f5",
+                cursor: "pointer",
+                fontSize: "12px",
+              };
+              const activeStyle = {
+                background: "#007bff",
+                color: "#fff",
+                border: "1px solid #007bff",
+                fontWeight: 600,
+              };
+              return (
+                <>
+                  <span
+                    role="button"
+                    onClick={() => setStatusFilter("all")}
+                    style={{
+                      ...chipBase,
+                      ...(statusFilter === "all" ? activeStyle : {}),
+                    }}
+                  >
+                    All ({total})
+                  </span>
+                  <span
+                    role="button"
+                    onClick={() => setStatusFilter("unevaluated")}
+                    style={{
+                      ...chipBase,
+                      ...(statusFilter === "unevaluated" ? activeStyle : {}),
+                    }}
+                  >
+                    Unevaluated ({unevaluated})
+                  </span>
+                  <span
+                    role="button"
+                    onClick={() => setStatusFilter("evaluated")}
+                    style={{
+                      ...chipBase,
+                      ...(statusFilter === "evaluated" ? activeStyle : {}),
+                    }}
+                  >
+                    Evaluated ({evaluated})
+                  </span>
+                </>
+              );
+            })()}
+          </div>
+
+          {(idxFilter || statusFilter !== "all") && (
             <div style={{ marginTop: "6px", fontSize: "12px", color: "#666" }}>
               Showing {(filteredNameReconciliations?.length ?? nameReconciliations.length)} of {nameReconciliations.length} records
             </div>
