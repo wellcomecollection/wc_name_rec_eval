@@ -29,7 +29,7 @@ interface Options {
 
 interface NameRecData {
   label: string;
-  idx: number;
+  idx: string;
   reconciled_labels: Array<{ label: string; idx: number }>;
   candidates: Array<{ label: string; idx: number; similarity: number }>;
 }
@@ -221,7 +221,8 @@ async function main() {
       
       do {
         // Get existing records with pagination
-        const existingRecords = await client.models.NameReconciliation.list({
+        // Explicitly annotate the response shape to avoid implicit any error
+        const existingRecords: { data: Array<{ id: string }>; nextToken?: string | null } = await client.models.NameReconciliation.list({
           limit: 1000, // Use smaller batches for better performance and reliability
           nextToken: nextToken
         });
