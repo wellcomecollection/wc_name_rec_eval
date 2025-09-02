@@ -1,10 +1,28 @@
-# Seeding Name Reconciliation Data & Fetching Deployment Outputs
+# Scripts Overview
 
 Helper documentation for the scripts in this folder.
 
 ## Scripts
 
 - `uploadNameRec.ts` – Seed `NameReconciliation` items into local sandbox or a deployed backend.
+- `tailAmplifyLogs.ts` – Tail AWS Amplify Hosting deployment logs for a branch/job.
+
+Both scripts load environment variables via `dotenv` at startup:
+
+- Loads `.env` and then `.env.local` (if present)
+- Existing shell env vars take precedence over file-based values
+
+Recommended `.env.local` keys:
+
+```sh
+# AWS credentials/target (example values)
+AWS_PROFILE=platform-admin-lon
+AWS_REGION=eu-west-2
+
+# Amplify Hosting
+AWS_APP_ID=d2xxxxxxxxxxxx
+AWS_BRANCH=main
+```
 
 ## Seed Name Reconciliation Data (Local Sandbox)
 
@@ -71,23 +89,57 @@ aws appsync list-graphql-apis \
   --query 'graphqlApis[].{name:name,id:apiId,url:uris.GRAPHQL}'
 ```
 
-Copy the `id` for use with `--appSyncId`.
+## Tail Amplify Deployment Logs
 
-## Data Format
+Use the log tailing script to stream CloudWatch logs from the latest or running Amplify job.
 
-The script expects JSON files with the following structure:
+With `.env.local` (recommended):
 
-```json
-{
-  "label": "Raymond, François.",
-  "idx": 637489,
-  "reconciled_labels": [
-    {"label": "Raymond, François.", "idx": 637489},
-    {"label": "Raymond, F. (François), 1769-", "idx": 490115}
-  ],
-  "candidates": [
-    {"label": "François, Raymond.", "idx": 230277, "similarity": 0.8485022187232971},
-    {"label": "Raymond, François.", "idx": 637489, "similarity": 0.8408583402633667}
-  ]
-}
+```bash
+# Ensure .env.local has AWS_APP_ID, AWS_BRANCH, AWS_REGION, AWS_PROFILE
+# Defaults to the Build step
+npm run tail:amplify -- --since 30m
+```
+
+List recent jobs for the branch:
+
+```bash
+npm run tail:amplify:list
+```
+
+Interactively choose job and step:
+
+```bash
+npm run tail:amplify:choose
+```
+
+Common steps you can target with `--step`:
+
+- Provision: environment setup before build
+- Build: application build logs (default in `tail:amplify`)
+- Deploy: deployment of built artifacts
+- Verify: post-deploy verification
+
+Note: Actual step names can vary by app. Use `npm run tail:amplify:list` or `npm run tail:amplify:choose` to see the precise step names for a job.
+
+Explicit flags (no env vars):
+
+```bash
+npm run tail:amplify -- --appId d2xxxxxxxxxxxx --branch main --region eu-west-2 --profile platform-admin-lon
+```
+
+Flags:
+
+```txt
+--appId <id>        Amplify App ID (or env AWS_APP_ID/AMPLIFY_APP_ID)
+--branch <name>     Branch name (or env AWS_BRANCH/AMPLIFY_BRANCH)
+--region <region>   AWS region (or env AWS_REGION/AMPLIFY_REGION)
+--profile <name>    AWS CLI profile (or env AWS_PROFILE)
+--jobId <id>        Specific job ID
+--step <name>       Prefer step (e.g., Build, Deploy)
+--list              List recent jobs and exit
+--interactive       Choose job/step via prompt
+--since <duration>  Lookback window (e.g., 10m, 1h)
+--no-follow         Print and exit without following
+--open              Open the CloudWatch log URL in browser
 ```

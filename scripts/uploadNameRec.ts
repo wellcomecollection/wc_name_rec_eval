@@ -14,6 +14,10 @@ import type { Schema } from '../amplify/data/resource';
 import fs from 'node:fs';
 import path from 'node:path';
 import outputs from '../amplify_outputs.json';
+import dotenv from 'dotenv';
+// Load base env first, then local overrides (without clobbering existing shell env)
+dotenv.config();
+dotenv.config({ path: '.env.local' });
 
 // Lightweight arg parsing
 interface Options { 
