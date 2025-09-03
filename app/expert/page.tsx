@@ -37,6 +37,8 @@ export default function ExpertApp() {
     statusFilter,
     setStatusFilter,
     isRecordUseful,
+  userEvaluationCount,
+  leadingEvaluationCount,
   } = useNameReconciliation(false);
 
   return (
@@ -317,6 +319,17 @@ export default function ExpertApp() {
                 </div>
 
                 <CandidatesViewer record={currentRecord} />
+                <div style={{ marginTop: "16px" }}>
+                  <EvaluationStatus
+                    record={currentRecord}
+                    areAllLabelsEvaluated={areAllLabelsEvaluated(currentRecord)}
+                    totalUsefulRecords={usefulRecords.length}
+                    unevaluatedCount={unevaluatedCount}
+                    userEvaluationCount={userEvaluationCount}
+                    leadingEvaluationCount={leadingEvaluationCount}
+                    onNextRecord={handleNextRecord}
+                  />
+                </div>
               </div>
             )}
           </>

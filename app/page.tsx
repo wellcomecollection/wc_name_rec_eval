@@ -19,6 +19,8 @@ export default function App() {
     currentRecord,
     usefulRecords,
     unevaluatedCount,
+  userEvaluationCount,
+  leadingEvaluationCount,
     setReconciledLabelEvaluation,
     areAllLabelsEvaluated,
     handleNextRecord,
@@ -56,6 +58,8 @@ export default function App() {
                   areAllLabelsEvaluated={areAllLabelsEvaluated(currentRecord)}
                   totalUsefulRecords={usefulRecords.length}
                   unevaluatedCount={unevaluatedCount}
+                  userEvaluationCount={userEvaluationCount}
+                  leadingEvaluationCount={leadingEvaluationCount}
                   onNextRecord={handleNextRecord}
                 />
               </div>

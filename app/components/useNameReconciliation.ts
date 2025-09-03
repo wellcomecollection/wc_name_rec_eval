@@ -333,6 +333,38 @@ export function useNameReconciliation(autoSelectRecord: boolean = true) {
       (!record.evaluator_id || record.evaluator_id.trim() === "")
   ).length;
 
+  // Evaluation counts per evaluator (count individual label decisions: yes/no/unsure)
+  const evaluationCounts: Record<string, number> = nameReconciliations.reduce(
+    (acc, r) => {
+      if (!isRecordUseful(r)) return acc;
+      const labels =
+        typeof r.reconciled_labels === "string"
+          ? JSON.parse(r.reconciled_labels || "[]")
+          : r.reconciled_labels || [];
+      const filteredLabels = labels.filter((l: any) => l.idx !== r.idx);
+      const evaluations =
+        typeof r.reconciled_labels_evaluations === "string"
+          ? JSON.parse(r.reconciled_labels_evaluations || "{}")
+          : r.reconciled_labels_evaluations || {};
+      // For each evaluated label, attribute to evaluator_id
+      const evaluator = r.evaluator_id?.trim();
+      if (evaluator) {
+        const decisionsForRecord = filteredLabels.filter((l: any) => {
+          const ev = evaluations[l.idx];
+          return ev === "yes" || ev === "no" || ev === "unsure";
+        }).length;
+        if (decisionsForRecord > 0) {
+          acc[evaluator] = (acc[evaluator] || 0) + decisionsForRecord;
+        }
+      }
+      return acc;
+    },
+    {} as Record<string, number>
+  );
+
+  const userEvaluationCount = user?.userId ? evaluationCounts[user.userId] || 0 : 0;
+  const leadingEvaluationCount = Object.values(evaluationCounts).reduce((max, n) => (n > max ? n : max), 0);
+
   return {
     nameReconciliations,
     filteredNameReconciliations,
@@ -341,6 +373,8 @@ export function useNameReconciliation(autoSelectRecord: boolean = true) {
     usefulRecords,
     currentRecordUsefulIndex,
     unevaluatedCount,
+  userEvaluationCount,
+  leadingEvaluationCount,
     setCurrentRecordIndex,
     findPreviousUsefulIndex,
     findNextUsefulIndex,

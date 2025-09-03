@@ -5,6 +5,8 @@ interface EvaluationStatusProps {
   areAllLabelsEvaluated: boolean;
   totalUsefulRecords: number;
   unevaluatedCount: number;
+  userEvaluationCount: number;
+  leadingEvaluationCount: number;
   onNextRecord: () => void;
 }
 
@@ -13,6 +15,8 @@ export default function EvaluationStatus({
   areAllLabelsEvaluated,
   totalUsefulRecords,
   unevaluatedCount,
+  userEvaluationCount,
+  leadingEvaluationCount,
   onNextRecord,
 }: EvaluationStatusProps) {
   return (
@@ -78,11 +82,32 @@ export default function EvaluationStatus({
           fontStyle: "italic",
         }}
       >
-        {unevaluatedCount > 0
-          ? `${unevaluatedCount} record${
-              unevaluatedCount === 1 ? "" : "s"
-            } left to evaluate`
-          : "🎉 All records have been evaluated!"}
+        {(() => {
+          if (totalUsefulRecords === 0) {
+            return "No useful records to evaluate.";
+          }
+          if (unevaluatedCount > 0) {
+            const plural = unevaluatedCount === 1 ? "record" : "records";
+            const percent = Math.round(
+              ((totalUsefulRecords - unevaluatedCount) / totalUsefulRecords) *
+                100
+            );
+            return `${unevaluatedCount} of ${totalUsefulRecords} ${plural} left to evaluate (${percent}% complete)`;
+          }
+          return `🎉 All ${totalUsefulRecords} record${
+            totalUsefulRecords === 1 ? "" : "s"
+          } have been evaluated!`;
+        })()}
+      </p>
+      <p
+        style={{
+          margin: "6px 0 0 0",
+          fontSize: "13px",
+          color: "#444",
+          textAlign: "center",
+        }}
+      >
+  You have made {userEvaluationCount} label decision{userEvaluationCount === 1 ? "" : "s"}. The leading evaluator has made {leadingEvaluationCount}.
       </p>
     </div>
   );
