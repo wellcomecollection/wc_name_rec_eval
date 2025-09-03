@@ -31,6 +31,26 @@ export default function ReconciledLabelsEvaluator({
       ? JSON.parse(record.reconciled_labels_evaluations || "{}")
       : record.reconciled_labels_evaluations || {};
 
+  // Derive unique Wellcome concept IDs (portion before first underscore in idx)
+  const currentConceptId = (() => {
+    const raw = String(record.idx || "");
+    if (!raw) return null;
+    return raw.split("_")[0];
+  })();
+
+  const uniqueConceptIds = Array.from(
+    new Set(
+      [
+        currentConceptId,
+        ...filteredLabels.map((reconLabel: any) => {
+          const raw = String(reconLabel.idx || "");
+          const conceptId = raw.split("_")[0];
+          return conceptId ? conceptId : null;
+        }),
+      ].filter((v: string | null): v is string => Boolean(v))
+    )
+  );
+
   if (filteredLabels.length === 0) {
     return null;
   }
@@ -102,7 +122,8 @@ export default function ReconciledLabelsEvaluator({
                       fontSize: "12px",
                     }}
                   >
-                    idx: {wellcomeUrl ? (
+                    idx:{" "}
+                    {wellcomeUrl ? (
                       <a
                         href={wellcomeUrl}
                         target="_blank"
@@ -261,6 +282,20 @@ export default function ReconciledLabelsEvaluator({
           Scroll to see all {filteredLabels.length} reconciled labels for
           evaluation
         </p>
+      )}
+
+      {isExpertMode && uniqueConceptIds.length > 0 && (
+        <div
+          style={{
+            marginTop: "10px",
+            fontSize: "13px",
+            color: "#333",
+            textAlign: "center",
+            fontWeight: 500,
+          }}
+        >
+          Unique concept links: {uniqueConceptIds.length}
+        </div>
       )}
     </div>
   );
