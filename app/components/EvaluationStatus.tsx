@@ -107,7 +107,9 @@ export default function EvaluationStatus({
           textAlign: "center",
         }}
       >
-  You have made {userEvaluationCount} label decision{userEvaluationCount === 1 ? "" : "s"}. The leading evaluator has made {leadingEvaluationCount}.
+        You have made {userEvaluationCount} label decision
+        {userEvaluationCount === 1 ? "" : "s"}. The leading evaluator has made{" "}
+        {leadingEvaluationCount}.
       </p>
     </div>
   );
