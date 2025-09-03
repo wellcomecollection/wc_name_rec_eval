@@ -36,6 +36,7 @@ export default function ExpertApp() {
     setIdxFilter,
     statusFilter,
     setStatusFilter,
+    isRecordUseful,
   } = useNameReconciliation(false);
 
   return (
@@ -85,10 +86,19 @@ export default function ExpertApp() {
           </div>
 
           {/* Status filter chips */}
-          <div style={{ display: "flex", gap: "8px", marginTop: "10px", flexWrap: "wrap" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "8px",
+              marginTop: "10px",
+              flexWrap: "wrap",
+            }}
+          >
             {(() => {
-              const total = nameReconciliations.length;
-              const evaluated = nameReconciliations.filter(
+              // Pre-filter to only "useful" records (same logic as non-expert page)
+              const usefulBase = nameReconciliations.filter(isRecordUseful);
+              const total = usefulBase.length;
+              const evaluated = usefulBase.filter(
                 (r) => r.evaluator_id && r.evaluator_id.trim() !== ""
               ).length;
               const unevaluated = total - evaluated;
@@ -145,17 +155,22 @@ export default function ExpertApp() {
 
           {(idxFilter || statusFilter !== "all") && (
             <div style={{ marginTop: "6px", fontSize: "12px", color: "#666" }}>
-              Showing {(filteredNameReconciliations?.length ?? nameReconciliations.length)} of {nameReconciliations.length} records
+              Showing{" "}
+              {filteredNameReconciliations?.length ??
+                nameReconciliations.length}{" "}
+              of {nameReconciliations.length} records
             </div>
           )}
         </div>
 
-        {(filteredNameReconciliations?.length ?? nameReconciliations.length) === 0 ? (
+        {(filteredNameReconciliations?.length ?? nameReconciliations.length) ===
+        0 ? (
           <p>No name reconciliation records found.</p>
         ) : !currentRecord ? (
           <div style={{ textAlign: "center", padding: "40px" }}>
             <p style={{ marginBottom: "20px", fontSize: "16px" }}>
-              Welcome to Expert Mode. Use the navigation controls to select a record to evaluate.
+              Welcome to Expert Mode. Use the navigation controls to select a
+              record to evaluate.
             </p>
             <button
               onClick={() => setCurrentRecordIndex(findFirstUsefulIndex())}
@@ -283,7 +298,9 @@ export default function ExpertApp() {
                 {/* Clear Evaluation Button (below Evaluator ID) */}
                 <div style={{ margin: "0 0 20px 0", textAlign: "left" }}>
                   <button
-                    onClick={() => currentRecord && clearEvaluation(currentRecord.id)}
+                    onClick={() =>
+                      currentRecord && clearEvaluation(currentRecord.id)
+                    }
                     style={{
                       padding: "8px 12px",
                       backgroundColor: "#fff",
