@@ -1,7 +1,4 @@
 "use client";
-
-import { Amplify } from "aws-amplify";
-import outputs from "@/amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
 import { useNameReconciliation } from "../components/useNameReconciliation";
 import Header from "../components/Header";
@@ -12,8 +9,6 @@ import CandidatesViewer from "../components/CandidatesViewer";
 import EvaluationStatus from "../components/EvaluationStatus";
 import UserInfo from "../components/UserInfo";
 import "../app.css";
-
-Amplify.configure(outputs);
 
 export default function ExpertApp() {
   const {

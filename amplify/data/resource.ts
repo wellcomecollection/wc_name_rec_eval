@@ -17,7 +17,12 @@ const schema = a.schema({
       reconciled_labels_evaluations: a.json(), // Field to store individual evaluation results as {idx: 'yes'|'no'|'unsure'}
       evaluator_id: a.string(), // Email of the user who evaluated this record
     })
-    .authorization((allow) => [allow.publicApiKey()]),
+    .authorization((allow) => [
+      // Allow authenticated Cognito users to access
+      allow.authenticated(),
+      // Keep API key access for scripts/ops until fully migrated off
+      allow.publicApiKey(),
+    ]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -25,10 +30,10 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: "apiKey",
-    apiKeyAuthorizationMode: {
-      expiresInDays: 30,
-    },
+    // Prefer Cognito User Pools for app clients
+    defaultAuthorizationMode: 'userPool',
+    // Keep API key as an additional mode during transition
+    apiKeyAuthorizationMode: { expiresInDays: 30 },
   },
 });
 

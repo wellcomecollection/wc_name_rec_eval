@@ -7,7 +7,7 @@ This project provides a lightweight UI for evaluation. It proposes clustered per
 ## Features
 
 - **Sampling & QA Workflow**: Reproducible 3,000‑row eyeball sample gating material algorithm changes.
-- **Auth & Access Control**: Amazon Cognito integration for protected expert review screens.
+- **Auth & Access Control**: Amazon Cognito integration for protected expert review screens (client uses Cognito tokens; no API key exposed).
 - **GraphQL API (AppSync)**: Serves reconciliation candidates and evaluation state.
 - **DynamoDB Storage**: Persists clusters, metrics, and audit metadata.
 - **Dual Modes (Standard / Expert)**: Standard mode auto-routes evaluators to random unevaluated useful records; Expert mode adds indexed navigation, status filters, and batch submission.
@@ -59,6 +59,10 @@ For detailed instructions on deploying your application, refer to the [deploymen
 ## Security
 
 See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+
+### Auth & API keys
+
+- The frontend uses Cognito User Pools for authorization and does not ship an AppSync API key. Client configuration is sanitized in `app/layout.tsx` via `AmplifyClientConfig` to omit any `api_key` from `amplify_outputs.json` and force `AMAZON_COGNITO_USER_POOLS` as the default authorization type.
 
 ## License
 
