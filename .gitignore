@@ -41,4 +41,25 @@ amplify_outputs*
 amplifyconfiguration*
 aws-exports.js
 
+# terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+*.tfvars.json
+!example.tfvars
+!*.example.tfvars
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+!override.example.tf
+.terraformrc
+terraform.rc
+*.plan
+
+# custom
+
 data
