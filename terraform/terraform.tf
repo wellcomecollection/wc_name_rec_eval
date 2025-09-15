@@ -20,10 +20,10 @@ terraform {
   required_version = ">= 0.9"
 
   backend "s3" {
-    assume_role = {
-      role_arn = "arn:aws:iam::760097843905:role/platform-developer"
-    }
-
+  # Authentication for the backend must be supplied via environment variables or
+  # an AWS profile. The S3 backend does not support an inline assume_role block.
+  # If you have a local profile that assumes the required role, specify it here.
+  profile       = "platform-developer"
     bucket         = "wellcomecollection-platform-infra"
     key            = "terraform/wc_name_rec_eval.tfstate"
     dynamodb_table = "terraform-locktable"

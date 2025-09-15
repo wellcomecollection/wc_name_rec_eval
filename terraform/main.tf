@@ -61,3 +61,26 @@ resource "aws_route53_record" "mail_from_spf" {
   records  = ["v=spf1 include:amazonses.com ~all"]
   provider = aws.dns
 }
+
+# Application hostname for narese.wellcomecollection.org
+# Points subdomain at Amplify/CloudFront distribution. If distribution/domain changes,
+# update the CNAME target below. For direct IP mapping, switch to an A record.
+# TTL kept at 300 for flexibility; increase once stable (e.g. 3600).
+resource "aws_route53_record" "narese" {
+  zone_id = data.aws_route53_zone.wellcomecollection_org.zone_id
+  name    = "narese.wellcomecollection.org"
+  type    = "CNAME"
+  ttl     = 300
+  records = ["d3nrdbrjtfgvc3.cloudfront.net"]
+  provider = aws.dns
+}
+
+# Amplify / ACM domain validation CNAME for narese.wellcomecollection.org
+resource "aws_route53_record" "narese_domain_validation" {
+  zone_id  = data.aws_route53_zone.wellcomecollection_org.zone_id
+  name     = "_ba97b5f71e8caa1a4ddb90a021418ef0.narese.wellcomecollection.org"
+  type     = "CNAME"
+  ttl      = 300
+  records  = ["_69037f5d999b22d83f4f04a6ac8466b3.xlfgrmvvlj.acm-validations.aws"]
+  provider = aws.dns
+}
