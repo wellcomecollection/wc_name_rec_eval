@@ -71,7 +71,7 @@ resource "aws_route53_record" "narese" {
   name    = "narese.wellcomecollection.org"
   type    = "CNAME"
   ttl     = 300
-  records = ["d23kswx4sx5k4w.cloudfront.net"]
+  records = ["dxgo04u22oiyj.cloudfront.net"]
   provider = aws.dns
 }
 
