@@ -168,14 +168,35 @@ export default function ReconciledLabelsEvaluator({
                     style={{
                       padding: "6px 12px",
                       backgroundColor:
-                        evaluation === "yes" ? "#28a745" : "#fff",
-                      color: evaluation === "yes" ? "white" : "#28a745",
-                      border: "1px solid #28a745",
+                        evaluation === "yes" ? "#1f7a34" : "#e6f5ea",
+                      color: evaluation === "yes" ? "#ffffff" : "#124a1f",
+                      border: "1px solid #1f7a34",
                       borderRadius: "4px",
                       cursor: "pointer",
                       fontSize: "12px",
                       fontWeight: "bold",
                       minWidth: "50px",
+                      boxShadow:
+                        evaluation === "yes"
+                          ? "0 0 0 2px rgba(31,122,52,0.25)"
+                          : "none",
+                      transition:
+                        "background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor =
+                        evaluation === "yes" ? "#17602a" : "#d1eedc";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor =
+                        evaluation === "yes" ? "#1f7a34" : "#e6f5ea";
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.outline = "2px solid #124a1f";
+                      e.currentTarget.style.outlineOffset = "2px";
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.outline = "none";
                     }}
                   >
                     {evaluation === "yes" ? "✓" : ""} Yes
@@ -191,14 +212,36 @@ export default function ReconciledLabelsEvaluator({
                     }
                     style={{
                       padding: "6px 12px",
-                      backgroundColor: evaluation === "no" ? "#ff1493" : "#fff",
-                      color: evaluation === "no" ? "white" : "#ff1493",
-                      border: "1px solid #ff1493",
+                      backgroundColor:
+                        evaluation === "no" ? "#b0005f" : "#ffe6f3",
+                      color: evaluation === "no" ? "#ffffff" : "#750042",
+                      border: "1px solid #b0005f",
                       borderRadius: "4px",
                       cursor: "pointer",
                       fontSize: "12px",
                       fontWeight: "bold",
                       minWidth: "50px",
+                      boxShadow:
+                        evaluation === "no"
+                          ? "0 0 0 2px rgba(176,0,95,0.25)"
+                          : "none",
+                      transition:
+                        "background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor =
+                        evaluation === "no" ? "#8c004d" : "#ffd1ea";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor =
+                        evaluation === "no" ? "#b0005f" : "#ffe6f3";
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.outline = "2px solid #750042";
+                      e.currentTarget.style.outlineOffset = "2px";
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.outline = "none";
                     }}
                   >
                     {evaluation === "no" ? "✗" : ""} No
@@ -214,15 +257,37 @@ export default function ReconciledLabelsEvaluator({
                     }
                     style={{
                       padding: "6px 12px",
+                      // Updated for better accessibility (higher contrast than #ffc107 on white)
                       backgroundColor:
-                        evaluation === "unsure" ? "#ffc107" : "#fff",
-                      color: evaluation === "unsure" ? "white" : "#ffc107",
-                      border: "1px solid #ffc107",
+                        evaluation === "unsure" ? "#b67600" : "#fff8e6",
+                      color: evaluation === "unsure" ? "#ffffff" : "#5a3d00",
+                      border: "1px solid #b67600",
+                      boxShadow:
+                        evaluation === "unsure"
+                          ? "0 0 0 2px rgba(182,118,0,0.25)"
+                          : "none",
                       borderRadius: "4px",
                       cursor: "pointer",
                       fontSize: "12px",
                       fontWeight: "bold",
                       minWidth: "60px",
+                      transition:
+                        "background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor =
+                        evaluation === "unsure" ? "#9c6200" : "#ffe3b3";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor =
+                        evaluation === "unsure" ? "#b67600" : "#fff8e6";
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.outline = "2px solid #7a4800";
+                      e.currentTarget.style.outlineOffset = "2px";
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.outline = "none";
                     }}
                   >
                     {evaluation === "unsure" ? "?" : ""} Unsure
