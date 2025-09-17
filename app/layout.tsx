@@ -4,6 +4,7 @@ import "./app.css";
 import { Amplify } from "aws-amplify";
 
 import AuthenticatorWrapper from "./AuthenticatorWrapper";
+import Footer from "./components/Footer";
 import "@aws-amplify/ui-react/styles.css";
 
 import outputs from "@/amplify_outputs.json";
@@ -45,7 +46,12 @@ export default function RootLayout({
       <body className={inter.className}>
         {/* Configure Amplify client-side without exposing API key */}
         <AmplifyClientConfig config={clientConfig} />
-        <AuthenticatorWrapper>{children}</AuthenticatorWrapper>
+        <div className="page-shell">
+          <div className="page-shell__content">
+            <AuthenticatorWrapper>{children}</AuthenticatorWrapper>
+          </div>
+          <Footer />
+        </div>
       </body>
     </html>
   );
