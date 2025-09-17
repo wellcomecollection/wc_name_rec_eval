@@ -2,6 +2,9 @@
   "name": "aws-amplify-gen2",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20 <21"
+  },
   "scripts": {
     "dev:sandbox": "npx ampx sandbox --profile platform-admin-lon",
     "dev": "next dev",
@@ -21,6 +24,7 @@
     "@aws-sdk/client-appsync": "^3.620.0",
     "@aws-sdk/credential-providers": "^3.620.0",
     "aws-amplify": "^6.6.6",
+    "canvas-confetti": "^1.9.3",
     "next": "14.2.32",
     "react": "^18",
     "react-dom": "^18"
