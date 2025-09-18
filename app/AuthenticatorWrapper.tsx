@@ -36,8 +36,10 @@ export default function AuthenticatorWrapper({
                   />
                   <h1 className="auth-title">Name Reconciliation Service</h1>
                   <p className="auth-subtitle">
-                    Please create an account using your Wellcome Trust email and
-                    sign in to help evaluate and improve our reconciliation
+                    <span className="auth-subtitle--highlight">
+                      Please create an account using your Wellcome Trust email
+                    </span>{" "}
+                    and sign in to help evaluate and improve our reconciliation
                     models.
                   </p>
                 </div>
