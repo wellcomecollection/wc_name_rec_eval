@@ -14,6 +14,7 @@
     "seed:name-rec": "tsx scripts/uploadNameRec.ts",
     "seed:name-rec:sandbox": "tsx scripts/uploadNameRec.ts --directory data/name_rec --clearData",
     "seed:name-rec:deployment": "tsx scripts/uploadNameRec.ts --outputs amplify_outputs.deployment.main.json --directory data/name_rec --clearData",
+    "export:name-rec": "tsx scripts/downloadNameRec.ts",
     "list:appsync": "aws appsync list-graphql-apis --region $AWS_REGION --profile $AWS_PROFILE --query 'graphqlApis[].{name:name,id:apiId,url:uris.GRAPHQL}'",
     "tail:amplify": "tsx scripts/tailAmplifyLogs.ts --step Build",
     "tail:amplify:list": "tsx scripts/tailAmplifyLogs.ts --list",
